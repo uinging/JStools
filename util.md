@@ -42,19 +42,19 @@
 
 21.[获取窗口大小](#getviewport)
 
-22.[实现一个简单的Query](#query)
+22.[绑定事件](#addlistener)
 
-23.[绑定事件](#addlistener)
+23.[移除事件](#removelistener)
 
-24.[移除事件](#removelistener)
+23.[回车键绑定事件](#addenterlistener)
 
-24.[回车键绑定事件](#addenterlistener)
+24.[事件代理](#delegateevent)
 
-25.[事件代理](#delegateevent)
+25.[判断是否IE](#isie)
 
-26.[判断是否IE](#isie)
+26.[设置与获取cookie](#cookie)
 
-27.[设置与获取cookie](#cookie)
+27.[实现一个简单的query](#query)
 
 ---
 
@@ -375,6 +375,112 @@ function getViewport(){
 }
 ```
 
+## addListener
+```javascript
+// 给一个element绑定一个针对event事件的响应，响应函数为handler
+function addListener(element, type, listener) {
+    if(element.addEventListener) {
+        element.addEventListener(type,listener,false);
+    }
+    else if(element.attachEvent) {
+        element.attachEvent("on" + type,listener);
+    }
+    else {
+        element["on" + type] = listener;
+    }
+}
+```
+
+## removeListener
+```javascript
+// 移除element对象对于event事件发生时执行handler的响应
+function removeListener(element, type, listener) {
+    if(element.removeEventListener) {
+        element.removeEventListener(type,listener,false);
+    }
+    else if(element.detachEvent) {
+        element.detachEvent("on" + type,listener);
+    }
+    else {
+        element["on" + type] = null;
+    }
+}
+```
+
+## addEnterListener
+```javascript
+// 实现对于按Enter键时的事件绑定; 基于 addListener
+function addEnterListener(element, listener) {
+    element.onkeydown = function(event) {
+        var event = event || window.event;
+        if(event && event.keyCode === 13) {
+            addListener(element,type,listener);
+        }
+    }
+}
+```
+
+## delegateEvent
+```javascript
+// 事件代理, 基于addListener
+function delegateEvent(element, tag, type, listener) {
+
+    function getEventTarget(e) {
+        e = e || window.event;
+        return e.target || e.srcElement;
+    }
+
+    function eventFn(type) {
+        var target = getEventTarget(event);
+        if(target && target.tagName.toLowerCase() === tag) {
+            listener();
+        }
+    }
+
+    addListener(element,type,eventFn);
+}
+```
+
+## isIE
+```javascript
+// 判断是否为IE浏览器，返回-1或者版本号
+function isIE() {
+    return !-[1,];
+}
+```
+
+## cookie
+```javascript
+// 设置cookie
+function setCookie(cookieName, cookieValue, expiredays) {
+    var d = new Date();
+    d.setDate(d.getDate() + expiredays);
+    var cookieText = encodeURIComponent(cookieName)
+                   + "="
+                   + encodeURIComponent(cookieValue);
+
+    if (expiredays) {
+        cookieText += "; expires=" + expiredays.toGMTString();
+    }
+
+    document.cookie = cookieText;
+}
+
+// 获取cookie值
+function getCookie(cookieName) {
+    var arrCookie = document.cookie.split(";");
+    for (var i = 0; i < arrCookie.length; i++) {
+        var _arr =  arrCookie[i].split("=");
+        if(_arr[0] === cookieName) {
+            return _arr[1];
+        }
+    }
+    else {
+        return null;
+    }
+}
+```
+
 ## query
 ```javascript
 // 实现一个简单的Query
@@ -513,111 +619,5 @@ function $(selector) {
         }
     }
     return element;
-}
-```
-
-## addListener
-```javascript
-// 给一个element绑定一个针对event事件的响应，响应函数为handler
-function addListener(element, type, listener) {
-    if(element.addEventListener) {
-        element.addEventListener(type,listener,false);
-    }
-    else if(element.attachEvent) {
-        element.attachEvent("on" + type,listener);
-    }
-    else {
-        element["on" + type] = listener;
-    }
-}
-```
-
-## removeListener
-```javascript
-// 移除element对象对于event事件发生时执行handler的响应
-function removeListener(element, type, listener) {
-    if(element.removeEventListener) {
-        element.removeEventListener(type,listener,false);
-    }
-    else if(element.detachEvent) {
-        element.detachEvent("on" + type,listener);
-    }
-    else {
-        element["on" + type] = null;
-    }
-}
-```
-
-## addEnterListener
-```javascript
-// 实现对于按Enter键时的事件绑定; 基于 addListener
-function addEnterListener(element, listener) {
-    element.onkeydown = function(event) {
-        var event = event || window.event;
-        if(event && event.keyCode === 13) {
-            addListener(element,type,listener);
-        }
-    }
-}
-```
-
-## delegateEvent
-```javascript
-// 事件代理, 基于addListener
-function delegateEvent(element, tag, type, listener) {
-
-    function getEventTarget(e) {
-        e = e || window.event;
-        return e.target || e.srcElement;
-    }
-
-    function eventFn(type) {
-        var target = getEventTarget(event);
-        if(target && target.tagName.toLowerCase() === tag) {
-            listener();
-        }
-    }
-
-    addListener(element,type,eventFn);
-}
-```
-
-## isIE
-```javascript
-// 判断是否为IE浏览器，返回-1或者版本号
-function isIE() {
-    return !-[1,];
-}
-```
-
-## cookie
-```javascript
-// 设置cookie
-function setCookie(cookieName, cookieValue, expiredays) {
-    var d = new Date();
-    d.setDate(d.getDate() + expiredays);
-    var cookieText = encodeURIComponent(cookieName)
-                   + "="
-                   + encodeURIComponent(cookieValue);
-
-    if (expiredays) {
-        cookieText += "; expires=" + expiredays.toGMTString();
-    }
-
-    document.cookie = cookieText;
-}
-
-// 获取cookie值
-function getCookie(cookieName) {
-    var arrCookie = document.cookie.split(";");
-    for (var i = 0; i < arrCookie.length; i++) {
-        var _arr =  arrCookie[i].split("=");
-        if(_arr[0] === cookieName) {
-            return _arr[1];
-        }
-    }
-    else {
-        return null;
-    }
 }
 ```
