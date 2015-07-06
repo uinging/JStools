@@ -28,7 +28,7 @@ function getChildNodes(node){
     child = convertToArray(child);
     var arr = [];
     for(var i in child) {
-        if(child[i].nodeType == 1) {
+        if(child[i].nodeType === 1) {
             arr.push(child[i]);
         }
     }
@@ -89,7 +89,7 @@ function simpleTrim(str) {
             //自己有值且不是空格,复制
             (str.charAt(i) && str.charAt(i) != " ") 
             //自己是空格,且上一位和下一位都不是空格,复制
-             || (str.charAt(i) == " " 
+             || (str.charAt(i) === " " 
                     && (str.charAt(i + 1) && str.charAt(i + 1) != " ") 
                 )
           )
@@ -98,7 +98,7 @@ function simpleTrim(str) {
         }
     }
     //如果第0位是空格,就返回第1位及以后的字符,否则返回整个字符串
-    return temp = (temp.charAt(0) == " ")? temp.slice(1) : temp; 
+    return temp = (temp.charAt(0) === " ")? temp.slice(1) : temp; 
 }
 // var str = "     hello     world     hello     world     hello     world     hello     world";
 // simpleTrim(str);
@@ -117,10 +117,10 @@ function each(arr, fn) {
     };
 }
 function say(value,index) {
-    if(arguments.length == 1) {
+    if(arguments.length === 1) {
         console.log(value);
     }
-    else if(arguments.length == 2) {
+    else if(arguments.length === 2) {
         console.log(index + ": " + value);
     }
 }
@@ -163,11 +163,11 @@ function isMobilePhone(phone) {
 // 为element增加一个样式名为newClassName的新样式
 function addClass(element, newClassName) {
     if(newClassName){
-        if(element.className == "") {
+        if(element.className === "") {
             element.className = newClassName;
         }
         else {
-            element.className = element.className + " " + newClassName;
+            element.className += " " + newClassName;
         }
     }
 }
@@ -254,7 +254,7 @@ function getPageY(event){
 
 //得到窗口大小
 function getViewport(){
-    if (document.compatMode == "BackCompat"){
+    if (document.compatMode === "BackCompat"){
         return {
             width: document.body.clientWidth,
             height: document.body.clientHeight
@@ -316,7 +316,7 @@ function $(selector) {
 
         attr = attr.replace(/\[|\]/g,"");//去掉中括号
 
-        if(attr.indexOf("=") == -1) {//没有等于号的情况
+        if(attr.indexOf("=") === -1) {//没有等于号的情况
             for (var i = 0; i < elements.length; i++) {
                 if(elements[i].getAttribute(attr)) {
                     match.push(elements[i]);
@@ -369,7 +369,7 @@ function $(selector) {
     //console.log(arg);
 
     for (var i = 0; i < arg.length; i++) {
-        if(i == 0) {
+        if(i === 0) {
             //把结果保存在数组里.
             //getElementsByClassName() getElementsByTagName() 返回的是类数组的对象,但不是数组.不能直接运用数组方法.需要类型转换
             element = element.concat(convertToArray(query(arg[i],document)));
@@ -528,7 +528,8 @@ function setCookie(cookieName, cookieValue, expiredays) {
     var deadDate = new Date();
 
     deadDate.setDate(currentDate.getDate() + expiredays);
-    var cookieText = encodeURIComponent(cookieName) + "="
+    var cookieText = encodeURIComponent(cookieName)
+                   + "="
     			   + encodeURIComponent(cookieValue);
 
     if (expiredays) {
@@ -558,21 +559,21 @@ function ajax(url, options) {
     var type = options.type ? options.type : "get";
     var afterHandleData = handleData(options.data);
 
-    if(type == "get"){
+    if(type === "get"){
         url = url + "?" + afterHandleData;
         xhr.open(type,url,true);
         xhr.onreadystatechange = ready;
         xhr.send(null);
     }
-    else if(type == "open") {
+    else if(type === "open") {
         xhr.open(type,url,true);
         xhr.onreadystatechange = ready;
         xhr.send(afterHandleData);
     }
 
     function ready() {
-        if(xhr.readyState == 4) {
-            if(xhr.status == 200) {
+        if(xhr.readyState === 4) {
+            if(xhr.status === 200) {
                 options.onsuccess();
             }
             else {
