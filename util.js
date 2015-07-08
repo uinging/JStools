@@ -1,4 +1,118 @@
-﻿//判断一个变量是不是数组
+﻿//用 class 获取元素
+function getElementsByClass(className,context) {
+    context = context || document;
+    if(document.getElementsByClassName) {
+        return context.getElementsByClassName(className);
+    }
+    else {
+        var i;
+        var arr = [];
+        var elements = context.getElementsByTagName("*");
+        for (i in elements) {
+            if(hasClass(className,elements[i])) {
+                arr.push(elements[i]);
+            }
+        }
+        return arr;
+    }
+}
+
+//判断一个元素有没有给定的class
+function hasClass(className,ele) {
+    if(!ele.className) {//如果元素根本没有class,退出.
+        return false;
+    }
+    var classNames = ele.className.split(/\s+/);
+    for (var i = 0; i < classNames.length; i++) {
+        if(className === classNames[i]) {
+            return true;
+        }
+    }
+}
+
+//通过属性名查找元素
+function getElementsByAttr(attr,context) {
+    var elements;
+    var match = [];
+
+    if(document.all) {
+        elements = context.all;
+    }
+    else {
+        elements = context.getElementsByTagName("*");
+    }
+
+    attr = attr.replace(/\[|\]/g,"");//去掉中括号
+
+    if(attr.indexOf("=") == -1) {//没有等于号的情况
+        for (var i = 0; i < elements.length; i++) {
+            if(elements[i].getAttribute(attr)) {
+                match.push(elements[i]);
+            }
+        }
+    }
+    else {//有等于号的情况
+        attrArr = attr.split("=");
+        for (var j = 0; j < elements.length; j++) {
+            if(elements[j].getAttribute(attrArr[0]) === attrArr[1]) {
+                match.push(elements[j]);
+            }
+        }
+    }
+
+    return match;        
+}
+
+//转换为数组
+function convertToArray(nodes) {
+    var array;
+    try {
+        array = Array.prototype.slice.call(nodes,0);
+    } catch (ex) {
+        array = [];
+        for(var i in nodes) {
+            array.push(nodes[i]);
+        }
+    }
+    return array;
+}
+
+//后一个兄弟元素
+function nextSibling(node) {
+    var tempLast = node.parentNode.lastChild;
+    if (node == tempLast) return null;
+    var tempObj = node.nextSibling;
+    while (tempObj.nodeType != 1 && tempObj.nextSibling != null) {
+        tempObj = tempObj.nextSibling;
+    }
+    return (tempObj.nodeType==1)? tempObj:null;
+}
+
+//前一个兄弟元素
+function prevSibling(node) {
+    var tempFirst = node.parentNode.firstChild;
+    if (node == tempFirst) return null;
+    var tempObj = node.previousSibling;
+    while (tempObj.nodeType != 1 && tempObj.previousSibling != null) {
+        tempObj = tempObj.previousSibling;
+    }
+    return (tempObj.nodeType==1)? tempObj:null;
+}
+
+//定义取消冒泡事件函数
+function cancelBubble(e) { 
+    var evt = e ? e : window.event; 
+    if (evt.stopPropagation) { 
+    //W3C 
+    evt.stopPropagation(); 
+    } 
+    else { 
+    //IE 
+    evt.cancelBubble = true;
+    }
+}
+
+//判断一个变量是不是数组
 function isArray(arr) {
     return Object.prototype.toString.call(arr) ==="[object Array]";
 }
@@ -267,84 +381,9 @@ function getViewport(){
 
 
 // 实现一个简单的Query
-function $(selector) {
+function $(selector,context) {
     var element = [];
-    var current = document;
-
-    function getElementsByClass(className,context) {
-        context = context || document;
-        if(document.getElementsByClassName) {
-            return context.getElementsByClassName(className);
-        }
-        else {
-            var i;
-            var arr = [];
-            var elements = context.getElementsByTagName("*");
-            for (i in elements) {
-                if(hasClass(className,elements[i])) {
-                    arr.push(elements[i]);
-                }
-            }
-            return arr;
-        }
-    }
-
-    function hasClass(className,ele) {
-        if(!ele.className) {//如果元素没有class,退出.
-            return false;
-        }
-        var classNames = ele.className.split(/\s+/);
-        for (var i = 0; i < classNames.length; i++) {
-            if(className === classNames[i]) {
-                return true;
-            }
-        }
-    }
-
-    function getElementsByAttr(attr,context) {
-        var elements;
-        var match = [];
-
-        if(document.all) {
-            elements = context.all;
-        }
-        else {
-            elements = context.getElementsByTagName("*");
-        }
-
-        attr = attr.replace(/\[|\]/g,"");//去掉中括号
-
-        if(attr.indexOf("=") === -1) {//没有等于号的情况
-            for (var i = 0; i < elements.length; i++) {
-                if(elements[i].getAttribute(attr)) {
-                    match.push(elements[i]);
-                }
-            }
-        }
-        else {//有等于号的情况
-            attrArr = attr.split("=");
-            for (var j = 0; j < elements.length; j++) {
-                if(elements[j].getAttribute(attrArr[0]) === attrArr[1]) {
-                    match.push(elements[j]);
-                }
-            }
-        }
-
-        return match;        
-    }
-
-    function convertToArray(nodes) {
-        var array;
-        try {
-            array = Array.prototype.slice.call(nodes,0);
-        } catch (ex) {
-            array = [];
-            for(var i in nodes) {
-                array.push(nodes[i]);
-            }
-        }
-        return array;
-    }
+    current = context || document;
 
     function query(ele,current) {
         var firstLetter = ele.charAt(0);
@@ -367,10 +406,15 @@ function $(selector) {
     //console.log(arg);
 
     for (var i = 0; i < arg.length; i++) {
-        if(i === 0) {
+        if(i == 0) {
             //把结果保存在数组里.
             //getElementsByClassName() getElementsByTagName() 返回的是类数组的对象,但不是数组.不能直接运用数组方法.需要类型转换
-            element = element.concat(convertToArray(query(arg[i],document)));
+            if(arg[i][0] == "#") {
+                element = element.concat(query(arg[i],current));
+            }
+            else {
+                element = element.concat(convertToArray(query(arg[i],current)));
+            }
         }
         else {
             var temp = [];
@@ -386,7 +430,13 @@ function $(selector) {
             result = [];   
         }
     }
-    return element;
+    //如果输入的选择器中最后一个是 id ,就输出第一个元素.因为 id 唯一.
+    if(arg[arg.length-1][0] == "#") {
+        return element[0];
+    }
+    else {
+        return element;
+    }
 }
 
 // 可以通过id获取DOM对象，通过#标示，例如
@@ -470,7 +520,7 @@ function delegateEvent(element, tag, type, listener) {
 //将函数封装为以下形式
 var Event = {};
 //事件绑定
-Event.on(selector, event, listener) {
+Event.on = function(selector, event, listener) {
     var element = $(selector);//调用$()
     if(element.addEventListener) {
         element.addEventListener(event,listener,false);
@@ -481,11 +531,11 @@ Event.on(selector, event, listener) {
     }
 }
 //点击事件
-Event.click(selector, listener) {
+Event.click = function(selector, listener) {
     Event.on(selector,click,listener);//调用Event.on()
 }
 //解除事件绑定
-Event.un(selector, event, listener) {
+Event.un = function(selector, event, listener) {
     var element = $(selector);
     if(element.removeEventListener) {
         element.removeEventListener(event,listener,false);
@@ -496,7 +546,7 @@ Event.un(selector, event, listener) {
     }
 }
 //事件代理
-Event.delegate(selector, tag, event, listener) {
+Event.delegate = function(selector, tag, event, listener) {
     var element = $(selector);
 
     function getEventTarget(e) {

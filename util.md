@@ -1,62 +1,199 @@
-## util包含常用方法
+# util包含常用方法
 
-1.[判断变量是否是数组](#isarray)
+1.[用class获取元素](#getelementsbyclass)
 
-2.[判断变量是否是函数](#isfunction)
+2.[判断是否有给定class](#hasclass)
 
-3.[得到一个元素的子元素](#getchildnodes)
+3.[用属性获取元素](#getelementsbyattr)
 
-4.[用递归实现深度克隆](#clone)
+4.[转换为数组](#converttoarray)
 
-5.[对数组进行去重](#uniqarray)
+5.[下一个兄弟元素](#nextsibling)
 
-6.[删除字符串多余空白](#simpletrim)
+6.[上一个兄弟元素](#prevsibling)
 
-7.[删除字符串多余空白2](#trim)
+7.[判断变量是否是数组](#isarray)
 
-8.[实现数组的each()方法](#each)
+8.[判断变量是否是函数](#isfunction)
 
-9.[获取对象长度](#getobjectlength)
+9.[得到一个元素的子元素](#getchildnodes)
 
-10.[验证邮箱地址](#isemail)
+10.[用递归实现深度克隆](#clone)
 
-11.[验证验证手机号](#ismobilephone)
+11.[对数组进行去重](#uniqarray)
 
-12.[添加class](#addclass)
+12.[删除字符串多余空白](#simpletrim)
 
-13.[移除class](#removeclass)
+13.[删除字符串多余空白2](#trim)
 
-14.[判断是否兄弟元素](#issiblingnode)
+14.[实现数组的each()方法](#each)
 
-15.[获取相对窗口位置](#getviewposition1)
+15.[获取对象长度](#getobjectlength)
 
-16.[获取相对窗口位置2](#getviewposition2)
+16.[验证邮箱地址](#isemail)
 
-17.[获取元素绝对位置](#geteleposition)
+17.[验证验证手机号](#ismobilephone)
 
-18.[获取滚动距离Y](#getscrolltop)
+18.[添加class](#addclass)
 
-19.[获取滚动距离X](#getscrollleft)
+19.[移除class](#removeclass)
 
-20.[获取鼠标绝对位置](#getpointerlocation)
+20.[判断是否兄弟元素](#issiblingnode)
 
-21.[获取窗口大小](#getviewport)
+21.[获取相对窗口位置](#getviewposition1)
 
-22.[绑定事件](#addlistener)
+22.[获取相对窗口位置2](#getviewposition2)
 
-23.[移除事件](#removelistener)
+23.[获取元素绝对位置](#geteleposition)
 
-23.[回车键绑定事件](#addenterlistener)
+24.[获取滚动距离Y](#getscrolltop)
 
-24.[事件代理](#delegateevent)
+25.[获取滚动距离X](#getscrollleft)
 
-25.[判断是否IE](#isie)
+26.[获取鼠标绝对位置](#getpointerlocation)
 
-26.[设置与获取cookie](#cookie)
+27.[获取窗口大小](#getviewport)
 
-27.[实现一个简单的query](#query)
+28.[绑定事件](#addlistener)
+
+29.[移除事件](#removelistener)
+
+29.[回车键绑定事件](#addenterlistener)
+
+30.[事件代理](#delegateevent)
+
+31.[判断是否IE](#isie)
+
+32.[设置与获取cookie](#cookie)
+
+33.[实现一个简单的query](#query)
 
 ---
+
+## getElementsByClass
+
+```javascript
+//用 class 获取元素
+function getElementsByClass(className,context) {
+    context = context || document;
+    if(document.getElementsByClassName) {
+        return context.getElementsByClassName(className);
+    }
+    else {
+        var i;
+        var arr = [];
+        var elements = context.getElementsByTagName("*");
+        for (i in elements) {
+            if(hasClass(className,elements[i])) {
+                arr.push(elements[i]);
+            }
+        }
+        return arr;
+    }
+}
+```
+
+## hasClass
+
+```javascript
+//判断一个元素有没有给定的class
+function hasClass(className,ele) {
+    if(!ele.className) {//如果元素根本没有class,退出.
+        return false;
+    }
+    var classNames = ele.className.split(/\s+/);
+    for (var i = 0; i < classNames.length; i++) {
+        if(className === classNames[i]) {
+            return true;
+        }
+    }
+}
+```
+
+## getElementsByAttr
+
+```javascript
+//通过属性名查找元素
+function getElementsByAttr(attr,context) {
+    var elements;
+    var match = [];
+
+    if(document.all) {
+        elements = context.all;
+    }
+    else {
+        elements = context.getElementsByTagName("*");
+    }
+
+    attr = attr.replace(/\[|\]/g,"");//去掉中括号
+
+    if(attr.indexOf("=") == -1) {//没有等于号的情况
+        for (var i = 0; i < elements.length; i++) {
+            if(elements[i].getAttribute(attr)) {
+                match.push(elements[i]);
+            }
+        }
+    }
+    else {//有等于号的情况
+        attrArr = attr.split("=");
+        for (var j = 0; j < elements.length; j++) {
+            if(elements[j].getAttribute(attrArr[0]) === attrArr[1]) {
+                match.push(elements[j]);
+            }
+        }
+    }
+
+    return match;        
+}
+```
+
+## convertToArray
+
+```javascript
+//转换为数组
+function convertToArray(nodes) {
+    var array;
+    try {
+        array = Array.prototype.slice.call(nodes,0);
+    } catch (ex) {
+        array = [];
+        for(var i in nodes) {
+            array.push(nodes[i]);
+        }
+    }
+    return array;
+}
+```
+
+## nextSibling
+
+```javascript
+//后一个兄弟元素
+function nextSibling(node) {
+    var tempLast = node.parentNode.lastChild;
+    if (node == tempLast) return null;
+    var tempObj = node.nextSibling;
+    while (tempObj.nodeType != 1 && tempObj.nextSibling != null) {
+        tempObj = tempObj.nextSibling;
+    }
+    return (tempObj.nodeType==1)? tempObj:null;
+}
+```
+
+## prevSibling
+
+```javascript
+//前一个兄弟元素
+function prevSibling(node) {
+    var tempFirst = node.parentNode.firstChild;
+    if (node == tempFirst) return null;
+    var tempObj = node.previousSibling;
+    while (tempObj.nodeType != 1 && tempObj.previousSibling != null) {
+        tempObj = tempObj.previousSibling;
+    }
+    return (tempObj.nodeType==1)? tempObj:null;
+}
+```
 
 ## isArray
 
@@ -501,84 +638,9 @@ function getCookie(cookieName) {
 // 可以通过简单的组合提高查询便利性，例如
 // $("#adom .classa"); // 返回id为adom的DOM所包含的所有子节点中，第一个样式定义包含classa的对象
 
-function $(selector) {
+function $(selector,context) {
     var element = [];
-    var current = document;
-
-    function getElementsByClass(className,context) {
-        context = context || document;
-        if(document.getElementsByClassName) {
-            return context.getElementsByClassName(className);
-        }
-        else {
-            var i;
-            var arr = [];
-            var elements = context.getElementsByTagName("*");
-            for (i in elements) {
-                if(hasClass(className,elements[i])) {
-                    arr.push(elements[i]);
-                }
-            }
-            return arr;
-        }
-    }
-
-    function hasClass(className,ele) {
-        if(!ele.className) {//如果元素没有class,退出.
-            return false;
-        }
-        var classNames = ele.className.split(/\s+/);
-        for (var i = 0; i < classNames.length; i++) {
-            if(className === classNames[i]) {
-                return true;
-            }
-        }
-    }
-
-    function getElementsByAttr(attr,context) {
-        var elements;
-        var match = [];
-
-        if(document.all) {
-            elements = context.all;
-        }
-        else {
-            elements = context.getElementsByTagName("*");
-        }
-
-        attr = attr.replace(/\[|\]/g,"");//去掉中括号
-
-        if(attr.indexOf("=") === -1) {//没有等于号的情况
-            for (var i = 0; i < elements.length; i++) {
-                if(elements[i].getAttribute(attr)) {
-                    match.push(elements[i]);
-                }
-            }
-        }
-        else {//有等于号的情况
-            attrArr = attr.split("=");
-            for (var j = 0; j < elements.length; j++) {
-                if(elements[j].getAttribute(attrArr[0]) === attrArr[1]) {
-                    match.push(elements[j]);
-                }
-            }
-        }
-
-        return match;        
-    }
-    //转化为数组
-    function convertToArray(nodes) {
-        var array;
-        try {
-            array = Array.prototype.slice.call(nodes,0);
-        } catch (ex) {
-            array = [];
-            for(var i in nodes) {
-                array.push(nodes[i]);
-            }
-        }
-        return array;
-    }
+    current = context || document;
 
     function query(ele,current) {
         var firstLetter = ele.charAt(0);
@@ -596,13 +658,20 @@ function $(selector) {
     }
 
     //因为参数之间的分割是空格,没有逗号,所以 arguments 的长度是1
-    //把参数用空格分割开
+    //这一步把参数用空格分割开
     var arg = selector.split(/\s+/);
+    //console.log(arg);
+
     for (var i = 0; i < arg.length; i++) {
-        if(i === 0) {
+        if(i == 0) {
             //把结果保存在数组里.
             //getElementsByClassName() getElementsByTagName() 返回的是类数组的对象,但不是数组.不能直接运用数组方法.需要类型转换
-            element = element.concat(convertToArray(query(arg[i],document)));
+            if(arg[i][0] == "#") {
+                element = element.concat(query(arg[i],current));
+            }
+            else {
+                element = element.concat(convertToArray(query(arg[i],current)));
+            }
         }
         else {
             var temp = [];
@@ -618,6 +687,12 @@ function $(selector) {
             result = [];   
         }
     }
-    return element;
+    //如果输入的选择器中最后一个是 id ,就输出第一个元素.因为 id 唯一.
+    if(arg[arg.length-1][0] == "#") {
+        return element[0];
+    }
+    else {
+        return element;
+    }
 }
 ```
