@@ -673,3 +673,5 @@ function ajax(url, options) {
 // data: 发送的数据，为一个键值对象或者为一个用&连接的赋值字符串
 // onsuccess: 成功时的调用函数
 // onfail: 失败时的调用函数
+
+
